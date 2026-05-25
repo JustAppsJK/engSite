@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo RAG - System Wiedzy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #1a3a5f;
+            --accent-blue: #3498db;
+            --bg-page: #f6f8fb;
+            --card-bg: #ffffff;
+            --text-dark: #2c3e50;
+            --muted: #6b7785;
+            --border-color: #e1e8ed;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--primary-blue); 
+            color: var(--text-dark);
+            min-height: 100vh;
+        }
+
+        .page-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: var(--bg-page);
+            min-height: 100vh;
+            box-shadow: 0 0 40px rgba(0,0,0,0.3);
+        }
+
+        /* Nawigacja spójna z resztą demo */
+        .navbar {
+            position: sticky;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.98);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 1000;
+            padding: 15px 40px;
+        }
+
+        .nav-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-links { display: flex; list-style: none; gap: 25px; }
+        .nav-links a { text-decoration: none; color: var(--primary-blue); font-weight: 600; font-size: 0.9rem; }
+
+        /* Kontent demo */
+        .main-content { padding: 40px; max-width: 1100px; margin: 0 auto; }
+
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h2 { color: var(--primary-blue); font-size: 2rem; margin-bottom: 10px; }
+        .header p { color: var(--muted); line-height: 1.6; max-width: 800px; margin: 0 auto; }
+
+        .grid { 
+            display: grid; 
+            grid-template-columns: 350px 1fr; 
+            gap: 25px; 
+            margin-top: 30px;
+        }
+
+        .panel { 
+            background: var(--card-bg); 
+            border-radius: 12px; 
+            padding: 20px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        h3 { font-size: 1.1rem; margin-bottom: 15px; color: var(--primary-blue); border-bottom: 2px solid var(--bg-page); padding-bottom: 8px; }
+
+        /* Style Dokumentów */
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            background: #eef7ff;
+            color: var(--accent-blue);
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .doc-item {
+            background: #fcfdfe;
+            border: 1px dashed #d1d9e0;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .doc-item h4 { font-size: 0.9rem; margin-bottom: 5px; color: #1a3a5f; }
+        .doc-item p { font-size: 0.85rem; color: #4a5568; line-height: 1.4; }
+
+        /* Style Chatu */
+        .chat-window {
+            height: 450px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .msg {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 0.92rem;
+            line-height: 1.5;
+        }
+
+        .user {
+            align-self: flex-end;
+            background: var(--primary-blue);
+            color: white;
+            border-bottom-right-radius: 2px;
+        }
+
+        .bot {
+            align-self: flex-start;
+            background: #f1f3f5;
+            color: var(--text-dark);
+            border-bottom-left-radius: 2px;
+            border: 1px solid #e9ecef;
+        }
+
+        .source-tag {
+            display: block;
+            margin-top: 8px;
+            font-size: 0.75rem;
+            color: var(--muted);
+            font-style: italic;
+            border-top: 1px solid #dee2e6;
+            padding-top: 5px;
+        }
+
+        .rag-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff9db;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+
+        .back-container { text-align: center; margin-top: 40px; padding-bottom: 40px; }
+        .back-link { color: var(--accent-blue); text-decoration: none; font-weight: 600; }
+
+        @media (max-width: 900px) {
+            .grid { grid-template-columns: 1fr; }
+            .navbar { padding: 15px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-wrapper">
+
+        </nav>
+
+        <main class="main-content">
+            <div class="header">
+                <h2>AI Usage</h2>
+                <p>Possibility to use local models ensuring security - <strong>data is not sent anywhere</strong>. Possibility to fine-tune models. Example shows a simple use of RAG (Retrieval-augmented generation).</p>
+            </div>
+            <div class="header">
+                <p>Example – a RAG-enabled model has access to precise information obtained from the knowledge base</p>
+            </div>
+
+            <div class="grid">
+                <!-- Sources Panel -->
+                <div class="panel">
+                    <h3>Knowledge Base</h3>
+                    <div class="doc-item">
+                        <h4>Privacy Policy</h4>
+                        <p>Participant data is automatically deleted 6 months after the completion of study XYZ.</p>
+                    </div>
+
+                    <div class="doc-item">
+                        <h4>Location History</h4>
+                        <p>GPS location is encrypted using AES-256 and sent to the server every 15 minutes.</p>
+                    </div>
+
+                    <div style="font-size: 0.8rem; color: var(--muted); margin-top: 20px;">
+                    </div>
+                </div>
+
+                <!-- Chat Panel -->
+                <div class="panel">
+                    <h3>AI Interface</h3>
+
+                    <div class="chat-window">
+
+                        <div class="msg user">
+                            How often is my location checked?
+                        </div>
+
+                        <div class="msg bot">
+                            GPS location is recorded every 15 minutes. All data is encrypted (AES-256) before transmission, ensuring the security of your coordinates.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="back-container">
+                <a href="../demo.html" class="back-link">← Back to project list</a>
+            </div>
+        </main>
+    </div>
+
+</body>
+</html>

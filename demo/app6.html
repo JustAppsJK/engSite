@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dzienniczek Badawczy - Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #1a3a5f;
+            --accent-blue: #3498db;
+            --bg-page: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-dark: #2c3e50;
+            --border-color: #e2e8f0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--primary-blue); color: var(--text-dark); min-height: 100vh; }
+
+        .page-wrapper { max-width: 1200px; margin: 0 auto; background-color: var(--bg-page); min-height: 100vh; box-shadow: 0 0 40px rgba(0,0,0,0.3); }
+        .navbar { background: #fff; border-bottom: 1px solid var(--border-color); padding: 15px 40px; position: sticky; top: 0; z-index: 100; }
+        .nav-links a { text-decoration: none; color: var(--primary-blue); font-weight: 600; font-size: 0.9rem; }
+
+        .main-content { padding: 40px; max-width: 600px; margin: 0 auto; text-align: center; }
+        .header { margin-bottom: 30px; }
+        .header h2 { color: var(--primary-blue); margin-bottom: 10px; }
+
+        .survey-card { background: var(--card-bg); padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        
+        .day-indicator { font-weight: 700; color: var(--accent-blue); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; display: block; }
+        
+        .question-box { min-height: 200px; display: none; }
+        .question-box.active { display: block; }
+        .question-text { font-size: 1.1rem; margin-bottom: 25px; font-weight: 600; color: var(--primary-blue); }
+
+        .options { display: flex; flex-direction: column; gap: 10px; }
+        .btn-opt { padding: 14px; border: 2px solid var(--border-color); border-radius: 12px; background: white; cursor: pointer; transition: 0.3s; font-family: inherit; font-weight: 500; text-align: left; }
+        
+        /* Stan "wciśnięty" */
+        .btn-opt.selected { 
+            border-color: var(--accent-blue); 
+            background: #eef7ff; 
+            color: var(--accent-blue);
+            box-shadow: inset 0 0 0 1px var(--accent-blue);
+        }
+
+        textarea { width: 100%; height: 100px; border: 2px solid var(--border-color); border-radius: 10px; padding: 10px; resize: none; font-family: inherit; }
+
+        .navigation { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border-color); }
+        .nav-btn { background: #e2e8f0; color: var(--primary-blue); border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .nav-btn.primary { background: var(--primary-blue); color: white; }
+        .nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .submit-btn { 
+            width: 100%; margin-top: 20px; padding: 15px; border-radius: 12px; border: none;
+            background: #cbd5e1; color: white; font-weight: 700; cursor: not-allowed; text-transform: uppercase;
+        }
+
+        .back-container { text-align: center; margin-top: 40px; padding-bottom: 40px; }
+        .back-link { color: var(--accent-blue); text-decoration: none; font-size: 0.9rem; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+
+        <main class="main-content">
+            <div class="header">
+                <h2>Research Diary</h2>
+                <p>Example of a simple questionnaire with different question types.</p>
+            </div>
+
+            <div class="survey-card">
+                <span class="day-indicator" id="day-label">Day 1 of 3</span>
+
+                <!-- Day 1 -->
+                <div class="question-box active" id="day1">
+                    <p class="question-text">How would you rate your mood today?</p>
+                    <div class="options">
+                        <button class="btn-opt" onclick="selectOption(this, 1)">Very low</button>
+                        <button class="btn-opt" onclick="selectOption(this, 1)">Average</button>
+                        <button class="btn-opt" onclick="selectOption(this, 1)">Very high</button>
+                    </div>
+                </div>
+
+                <!-- Day 2 -->
+                <div class="question-box" id="day2">
+                    <p class="question-text">Did anything stressful happen today? If yes, how stressful was it?</p>
+                    <div class="options">
+                        <button class="btn-opt" onclick="selectOption(this, 2)">Yes, very stressful</button>
+                        <button class="btn-opt" onclick="selectOption(this, 2)">Moderately</button>
+                        <button class="btn-opt" onclick="selectOption(this, 2)">Nothing stressful</button>
+                    </div>
+                </div>
+
+                <!-- Day 3 -->
+                <div class="question-box" id="day3">
+                    <p class="question-text">Briefly describe your mood today:</p>
+                    <textarea placeholder="Type here..."></textarea>
+                    <button class="submit-btn" disabled>Submit results (disabled)</button>
+                </div>
+
+                <div class="navigation">
+                    <button class="nav-btn" id="prevBtn" onclick="changeDay(-1)" disabled>previous day</button>
+                    <button class="nav-btn primary" id="nextBtn" onclick="changeDay(1)">next day</button>
+                </div>
+            </div>
+
+            <div class="back-container">
+                <a href="../demo.html" class="back-link">← Back to project list</a>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let currentDay = 1;
+        const totalDays = 3;
+
+        function selectOption(btn, day) {
+            // Usuń zaznaczenie z innych przycisków w tym samym dniu
+            const siblings = btn.parentElement.querySelectorAll('.btn-opt');
+            siblings.forEach(s => s.classList.remove('selected'));
+            // Zaznacz kliknięty
+            btn.classList.add('selected');
+        }
+
+        function changeDay(step) {
+            document.getElementById(`day${currentDay}`).classList.remove('active');
+            currentDay += step;
+            document.getElementById(`day${currentDay}`).classList.add('active');
+
+            document.getElementById('day-label').textContent = `Day ${currentDay} of ${totalDays}`;
+            document.getElementById('prevBtn').disabled = currentDay === 1;
+            
+            if(currentDay === totalDays) {
+                document.getElementById('nextBtn').style.display = 'none';
+            } else {
+                document.getElementById('nextBtn').style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>

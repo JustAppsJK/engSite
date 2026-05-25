@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Survey - Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #1a3a5f;
+            --accent-blue: #3498db;
+            --bg-chat: #e5ddd5;
+            --msg-bot: #ffffff;
+            --msg-user: #dcf8c6;
+            --text-dark: #2c3e50;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--primary-blue); 
+            color: var(--text-dark); 
+            min-height: 100vh;
+        }
+
+        .page-wrapper { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            background-color: #f0f2f5; 
+            width: 100%;
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+        }
+
+        /* Sekcja nagłówka / opisu */
+        .header-section {
+            padding: 40px 20px;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header-section h2 {
+            color: var(--primary-blue);
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-transform: lowercase; /* Styl z Twojego nagłówka */
+        }
+
+        .header-section p {
+            color: var(--text-muted);
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+
+        /* Główne okno chatu */
+        .chat-container { 
+            flex-grow: 0; 
+            max-width: 500px; 
+            margin: 0 auto 40px auto; 
+            width: 95%; 
+            background: var(--bg-chat); 
+            border-radius: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1); 
+            height: 600px; 
+        }
+        
+        .chat-header { 
+            background: var(--primary-blue); 
+            color: white; 
+            padding: 18px; 
+            text-align: center; 
+            font-weight: 600; 
+            font-size: 1rem; 
+        }
+
+        .chat-window { 
+            flex-grow: 1; 
+            padding: 20px; 
+            overflow-y: auto; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+        }
+
+        .bubble { 
+            max-width: 80%; 
+            padding: 12px 16px; 
+            border-radius: 15px; 
+            font-size: 0.9rem; 
+            line-height: 1.5; 
+            position: relative; 
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05); 
+        }
+        
+        .bot { 
+            align-self: flex-start; 
+            background: var(--msg-bot); 
+            border-bottom-left-radius: 2px; 
+        }
+        
+        .user { 
+            align-self: flex-end; 
+            background: var(--msg-user); 
+            border-bottom-right-radius: 2px; 
+            color: #1a3a5f;
+            font-weight: 500;
+        }
+
+        .controls-area { 
+            background: #f8f9fa; 
+            padding: 20px; 
+            border-top: 1px solid #eee; 
+            min-height: 110px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chip-container { 
+            display: flex; 
+            gap: 10px; 
+            justify-content: center; 
+            flex-wrap: wrap; 
+        }
+
+        .chip { 
+            background: white; 
+            border: 1px solid var(--accent-blue); 
+            color: var(--accent-blue); 
+            padding: 10px 18px; 
+            border-radius: 20px; 
+            cursor: pointer; 
+            font-size: 0.85rem; 
+            font-weight: 600; 
+            transition: all 0.2s; 
+        }
+
+        .chip:hover { 
+            background: var(--accent-blue); 
+            color: white; 
+        }
+
+        .slider-box { 
+            width: 100%; 
+            display: none; 
+            text-align: center; 
+        }
+
+        .slider-box input { 
+            width: 100%; 
+            margin: 15px 0; 
+            cursor: pointer;
+        }
+
+        .slider-labels { 
+            display: flex; 
+            justify-content: space-between; 
+            font-size: 0.75rem; 
+            color: #666; 
+            margin-bottom: 15px;
+        }
+
+        .btn-send { 
+            background: var(--accent-blue); 
+            color: white; 
+            border: none; 
+            padding: 12px; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-weight: bold;
+            width: 100%;
+        }
+
+        .hidden { display: none !important; }
+
+        .back-container { text-align: center; padding: 20px; margin-top: auto; }
+        .back-link { color: var(--accent-blue); text-decoration: none; font-size: 0.85rem; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+        
+        <!-- Updated header -->
+        <header class="header-section">
+            <h2>survey - chat</h2>
+            <p>Example of collecting data via a conversational chatbot (this example is deterministic but can be extended with AI to generate dynamic dialogues)</p>
+        </header>
+
+        <div class="chat-container">
+            <div class="chat-header">Research Assistant</div>
+            
+            <div class="chat-window" id="chatWindow">
+                <div class="bubble bot">Good morning! Do you have a moment to answer 2 short questions?</div>
+            </div>
+
+            <div class="controls-area">
+                <!-- Initial choice -->
+                <div id="start-chips" class="chip-container">
+                    <div class="chip" onclick="handleFlow('yes')">Yes, of course</div>
+                    <div class="chip" onclick="handleFlow('no')">Not now</div>
+                </div>
+
+                <!-- Slider -->
+                <div id="slider-area" class="slider-box">
+                    <p style="font-size: 0.85rem; font-weight: 600;">Your well-being: <span id="slider-val">3</span>/5</p>
+                    <input type="range" id="rangeInput" min="1" max="5" step="1" value="3" 
+                           oninput="document.getElementById('slider-val').innerText = this.value">
+                    <div class="slider-labels">
+                        <span>Very poor</span>
+                        <span>Excellent</span>
+                    </div>
+                    <button class="btn-send" onclick="submitSlider()">Confirm choice</button>
+                </div>
+
+                <!-- Second question (chips) -->
+                <div id="next-q-chips" class="chip-container hidden">
+                    <div class="chip" onclick="handleFlow('productive')">Work/Study</div>
+                    <div class="chip" onclick="handleFlow('relax')">Relaxation</div>
+                    <div class="chip" onclick="handleFlow('other')">Other</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="back-container">
+            <a href="../demo.html" class="back-link">← Back to project list</a>
+        </div>
+    </div>
+
+    <script>
+    const chatWindow = document.getElementById('chatWindow');
+
+    function addMessage(text, side) {
+        const msg = document.createElement('div');
+        msg.className = `bubble ${side}`;
+        msg.textContent = text;
+        chatWindow.appendChild(msg);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    function handleFlow(choice) {
+        if (choice === 'yes') {
+            addMessage("Yes, of course", "user");
+            document.getElementById('start-chips').classList.add('hidden');
+
+            setTimeout(() => {
+                addMessage("Great! First: how would you rate your overall well‑being right now on a scale from 1 to 5?", "bot");
+                document.getElementById('slider-area').style.display = 'block';
+            }, 800);
+        } 
+        else if (choice === 'no') {
+            addMessage("Not now", "user");
+            document.getElementById('start-chips').classList.add('hidden');
+
+            setTimeout(() => {
+                addMessage("I understand. I'll reach out in the next session. Have a nice day!", "bot");
+            }, 800);
+        }
+        else if (['productive', 'relax', 'other'].includes(choice)) {
+            const labels = {productive: "Work/Study", relax: "Relaxation", other: "Other"};
+            addMessage(labels[choice], "user");
+            document.getElementById('next-q-chips').classList.add('hidden');
+
+            setTimeout(() => {
+                addMessage("Thank you! Your responses have been saved. This concludes the session.", "bot");
+            }, 800);
+        }
+    }
+
+    function submitSlider() {
+        const val = document.getElementById('rangeInput').value;
+        addMessage(`My well‑being: ${val}/5`, "user");
+        document.getElementById('slider-area').style.display = 'none';
+
+        setTimeout(() => {
+            addMessage("Thank you. Second question: Which activity dominates your day today?", "bot");
+            document.getElementById('next-q-chips').classList.remove('hidden');
+        }, 800);
+    }
+</script>
+</body>
+</html>
